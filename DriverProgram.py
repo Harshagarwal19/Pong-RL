@@ -130,7 +130,6 @@ TOTAL_REWARD = reward_t
 while True:
 
 	COUNT += 1
-	print COUNT
 	
 	# decide action based on EPSILON
 	if random.random()>EPSILON:
