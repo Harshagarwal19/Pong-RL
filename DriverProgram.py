@@ -18,7 +18,7 @@ ACTIONS = 6
 
 REPLAY_MEMORY = deque()	# store (4 Images, action, reward, Q_)
 
-BATCH_SIZE = 100000
+BATCH_SIZE = 50000
 MINIBATCH_SIZE = 32
 
 EPSILON = 1
