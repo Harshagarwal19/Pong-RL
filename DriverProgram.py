@@ -177,7 +177,7 @@ while True:
 	# ------------------------------------------------------------------------------- #
 
 	if done:
-		print "Game : ", GAME_COUNT ," Total reward = ", TOTAL_REWARD
+		print "Game : ", GAME_COUNT , " COUNT = ", COUNT ," Total reward = ", TOTAL_REWARD
 		TOTAL_REWARD = 0
 		GAME_COUNT += 1
 		env.reset()	
