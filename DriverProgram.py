@@ -21,13 +21,14 @@ REPLAY_MEMORY = deque()	# store (4 Images, action, reward, Q_)
 BATCH_SIZE = 50000
 MINIBATCH_SIZE = 32
 
-EPSILON = 1
+EPSILON = 0.8
 
-COUNT = 0
+COUNT = 200000
 GAME_COUNT = 1
 
 # Statistics
 TOTAL_REWARD = 0
+AVG_REWARD = 0
 
 # ----- Followed documentation here : https://gym.openai.com/docs ------------------- #
 
@@ -97,12 +98,12 @@ def backPropagate(sess, inputImage, action, reward, Q_, train_step, batch):
 # ----- Followed documentation here : https://www.tensorflow.org/get_started/mnist/pros ---------- #
 # ----- Followed documentation here : https://www.tensorflow.org/programmers_guide/variables --- #
 sess = tf.InteractiveSession()
-# ------------------------------------------------------------------------------- #
 
 # Get DQN
 inputImagePlaceholder, actionPlaceholder, rewardPlaceholder, Q_Placeholder, Q, train_step = DQN.dqn(sess)
 sess.run(tf.global_variables_initializer())
 saver = tf.train.Saver()
+# ------------------------------------------------------------------------------- #
 
 # Load old network
 # ----- Followed documentation here : https://www.tensorflow.org/programmers_guide/variables --- #
@@ -155,7 +156,7 @@ while True:
 	Q_val = Q_val1
 
 	# Backpropagate
-	if COUNT>BATCH_SIZE:
+	if len(REPLAY_MEMORY)>=BATCH_SIZE:
 		batch = random.sample(REPLAY_MEMORY, MINIBATCH_SIZE)
 		backPropagate(sess, inputImagePlaceholder, actionPlaceholder, rewardPlaceholder, Q_Placeholder, train_step, batch)
 
@@ -177,7 +178,8 @@ while True:
 	# ------------------------------------------------------------------------------- #
 
 	if done:
-		print "Game : ", GAME_COUNT , " COUNT = ", COUNT ," Total reward = ", TOTAL_REWARD
+		AVG_REWARD = (((GAME_COUNT-1)*AVG_REWARD) + TOTAL_REWARD)/GAME_COUNT
+		print "Game : ", GAME_COUNT , " COUNT = ", COUNT ," Total reward = ", TOTAL_REWARD, " Average reward = ", AVG_REWARD
 		TOTAL_REWARD = 0
 		GAME_COUNT += 1
 		env.reset()	
