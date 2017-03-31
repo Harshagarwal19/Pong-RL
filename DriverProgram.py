@@ -18,17 +18,17 @@ ACTIONS = 6
 
 REPLAY_MEMORY = deque()	# store (4 Images, action, reward, Q_)
 
-BATCH_SIZE = 50000
+BATCH_SIZE = 20000
 MINIBATCH_SIZE = 32
 
-EPSILON = 0.61
+EPSILON = 0.55
 
-COUNT = 390000
-GAME_COUNT = 642
+COUNT = 450000
+GAME_COUNT = 843
 
 # Statistics
 TOTAL_REWARD = 0
-AVG_REWARD = -20.58
+AVG_REWARD = -20.57
 
 # ----- Followed documentation here : https://gym.openai.com/docs ------------------- #
 
