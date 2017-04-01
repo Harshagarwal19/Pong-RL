@@ -18,17 +18,20 @@ ACTIONS = 6
 
 REPLAY_MEMORY = deque()	# store (4 Images, action, reward, Q_)
 
-BATCH_SIZE = 10
-MINIBATCH_SIZE = 4
+REPLAY_MEMORY_SIZE = 100000
+BATCH_SIZE = 10000
+MINIBATCH_SIZE = 32
 
-EPSILON = 0.55
+EPSILON = 1
 
-COUNT = 450000
-GAME_COUNT = 843
+COUNT = 0
+GAME_COUNT = 1
 
 # Statistics
 TOTAL_REWARD = 0
-AVG_REWARD = -20.57
+AVG_REWARD = 0
+
+GAMMA = 0.99
 
 # ----- Followed documentation here : https://gym.openai.com/docs ------------------- #
 
@@ -65,7 +68,10 @@ def changeImage(img):	# resize the image
 
 # ----- Used this answer : http://stackoverflow.com/questions/12201577/how-can-i-convert-an-rgb-image-into-grayscale-in-python ------------------- #
 def grayScaleImage(rgbImage):
-	return np.dot(rgbImage[...,:3], [0.299, 0.587, 0.114])
+	# return np.dot(rgbImage[...,:3], [0.299, 0.587, 0.114])
+	img = Image.fromarray(rgbImage)
+	img = img.convert('1')
+	return img
 # ------------------------------------------------------------------------------- #
 
 # ----- Followed this answer : http://stackoverflow.com/questions/2659312/how-do-i-convert-a-numpy-array-to-and-display-an-image
@@ -80,19 +86,17 @@ def getQ(sess, inputImage, inputImages, Q):
 	inputImages = inputImages.reshape((1, IMG_SIZE, IMG_SIZE, INP_FRAMES))
 	return Q.eval(feed_dict={inputImage:inputImages})
 
-def backPropagate(sess, inputImage, action, reward, Q_, train_step, batch):
+def backPropagate(sess, inputImage, action, y_, train_step, batch):
 	# append in list to fill placeholder
 	inpImg = []
 	actions = []
-	rewards = []
-	Q_s = [] 
+	y_s = [] 
 	for i in batch:
 		inpImg.append(i[0])
 		actions.append(i[1])
-		rewards.append(i[2])
-		Q_s.append(i[3])
-
-	train_step.run(feed_dict={inputImage:inpImg, action:actions, reward:rewards, Q_:Q_s})	
+		y_s.append(i[2])
+		
+	train_step.run(feed_dict={inputImage:inpImg, action:actions, y_:y_s})	
 	
 # Declare session
 # ----- Followed documentation here : https://www.tensorflow.org/get_started/mnist/pros ---------- #
@@ -100,7 +104,7 @@ def backPropagate(sess, inputImage, action, reward, Q_, train_step, batch):
 sess = tf.InteractiveSession()
 
 # Get DQN
-inputImagePlaceholder, actionPlaceholder, rewardPlaceholder, Q_Placeholder, Q, train_step = DQN.dqn(sess)
+inputImagePlaceholder, actionPlaceholder, y_, Q, train_step = DQN.dqn(sess)
 sess.run(tf.global_variables_initializer())
 saver = tf.train.Saver()
 # ------------------------------------------------------------------------------- #
@@ -131,11 +135,13 @@ TOTAL_REWARD = reward_t
 while True:
 
 	COUNT += 1
+	print "Count = ", COUNT
 	
 	# decide action based on EPSILON
 	if random.random()>EPSILON:
 		# Exploit
-		action = tf.argmax(Q_val,1).eval()[0]
+		# action = tf.argmax(Q_val,1).eval()[0]
+		action = np.argmax(Q_val)
 	else:
 		# Explore
 		action = env.action_space.sample()
@@ -143,13 +149,16 @@ while True:
 	# take action
 	inputImages_t1, reward_t1, done = getMultipleImageFrames(env, action)	
 	Q_val1 = getQ(sess, inputImagePlaceholder, inputImages_t1, Q)	# Q_t+1
-
+	
 	# Store in replay memory
 	actionMatrix = np.zeros(ACTIONS)
 	actionMatrix[action] = 1
 	if done:	# for last state, no gamma*greedy(Q_t+1)
-		Q_val1 = np.multiply(Q_val1, 0)
-	REPLAY_MEMORY.append((inputImages_t, actionMatrix, reward_t1, Q_val1))
+		v_s_t1 = reward_t1
+	else:
+		v_s_t1 = reward_t1 + GAMMA * np.max(Q_val1)
+	
+	REPLAY_MEMORY.append((inputImages_t, actionMatrix, v_s_t1))
 
 	# use inputImages_t1 as inputimages_t2
 	inputImages_t = inputImages_t1
@@ -158,7 +167,7 @@ while True:
 	# Backpropagate
 	if len(REPLAY_MEMORY)>=BATCH_SIZE:
 		batch = random.sample(REPLAY_MEMORY, MINIBATCH_SIZE)
-		backPropagate(sess, inputImagePlaceholder, actionPlaceholder, rewardPlaceholder, Q_Placeholder, train_step, batch)
+		backPropagate(sess, inputImagePlaceholder, actionPlaceholder, y_, train_step, batch)
 
 	# Keep track of total reward for this game
 	TOTAL_REWARD += reward_t1	
@@ -167,7 +176,7 @@ while True:
 		EPSILON -= 0.01
 
 	# check REPLAY_MEMORY size (shouldn't be more than batch_size)
-	if len(REPLAY_MEMORY)>BATCH_SIZE:
+	if len(REPLAY_MEMORY)>REPLAY_MEMORY_SIZE:
 		REPLAY_MEMORY.popleft()	
 
 	# save the network

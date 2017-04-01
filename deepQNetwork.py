@@ -45,9 +45,8 @@ def dqn(sess):
 	# Placeholders for variable (4 variables required for Deep Q network)
 	inputImage = tf.placeholder(tf.float32, shape=[None, IMG_SIZE, IMG_SIZE, INP_FRAMES])
 	action = tf.placeholder(tf.float32, shape=[None, ACTIONS])
-	reward = tf.placeholder(tf.float32, shape=[None])
-	Q_ = tf.placeholder(tf.float32, shape=[None, 1, ACTIONS])
-
+	y_ = tf.placeholder(tf.float32, shape=[None])
+	
 	# convolutional layer 1
 	conv1_weights = get_weights([CONV1_FILTER, CONV1_FILTER, INP_FRAMES, CONV1_FEATURES])
 	conv1_bias = get_bias([CONV1_FEATURES])
@@ -84,10 +83,7 @@ def dqn(sess):
 
 	# Cost function
 	# C = [Action_in_Q - {reward + gamma*Greedy(Q_)}]^2
-	greedyQ_ = tf.reduce_max(Q_)
-	discountQ_ = tf.multiply(greedyQ_, GAMMA)
-	y_ = tf.add(discountQ_, reward)
-
+	
 	Q_action = tf.multiply(Q, action) # Only the Q-value for sampled action will have non-zero value
 	Q_final = tf.reduce_sum(Q_action)
 
@@ -97,4 +93,4 @@ def dqn(sess):
 	costTerm = tf.reduce_mean(cost)
 	train_step = tf.train.AdamOptimizer(1e-6).minimize(costTerm)
 
-	return inputImage, action, reward, Q_, Q, train_step
+	return inputImage, action, y_, Q, train_step
