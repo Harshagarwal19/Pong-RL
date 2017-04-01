@@ -92,7 +92,7 @@ def dqn(sess):
 	Q_final = tf.reduce_sum(Q_action)
 
 	cost = tf.square(Q_final - y_)
-
+	
 	# Backpropagate cost and adjust weights
 	costTerm = tf.reduce_mean(cost)
 	train_step = tf.train.AdamOptimizer(1e-6).minimize(costTerm)

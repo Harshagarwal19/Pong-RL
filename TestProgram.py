@@ -18,10 +18,10 @@ ACTIONS = 6
 
 REPLAY_MEMORY = deque()	# store (4 Images, action, reward, Q_)
 
-BATCH_SIZE = 10
-MINIBATCH_SIZE = 4
+BATCH_SIZE = 20000
+MINIBATCH_SIZE = 32
 
-EPSILON = 0.55
+EPSILON = 0.05
 
 COUNT = 450000
 GAME_COUNT = 843
@@ -140,42 +140,43 @@ while True:
 		# Explore
 		action = env.action_space.sample()
 
+	print "Action = ", action	
 	# take action
 	inputImages_t1, reward_t1, done = getMultipleImageFrames(env, action)	
 	Q_val1 = getQ(sess, inputImagePlaceholder, inputImages_t1, Q)	# Q_t+1
 
 	# Store in replay memory
-	actionMatrix = np.zeros(ACTIONS)
-	actionMatrix[action] = 1
-	if done:	# for last state, no gamma*greedy(Q_t+1)
-		Q_val1 = np.multiply(Q_val1, 0)
-	REPLAY_MEMORY.append((inputImages_t, actionMatrix, reward_t1, Q_val1))
+	# actionMatrix = np.zeros(ACTIONS)
+	# actionMatrix[action] = 1
+	# if done:	# for last state, no gamma*greedy(Q_t+1)
+	# 	Q_val1 = np.multiply(Q_val1, 0)
+	# REPLAY_MEMORY.append((inputImages_t, actionMatrix, reward_t1, Q_val1))
 
 	# use inputImages_t1 as inputimages_t2
 	inputImages_t = inputImages_t1
 	Q_val = Q_val1
 
 	# Backpropagate
-	if len(REPLAY_MEMORY)>=BATCH_SIZE:
-		batch = random.sample(REPLAY_MEMORY, MINIBATCH_SIZE)
-		backPropagate(sess, inputImagePlaceholder, actionPlaceholder, rewardPlaceholder, Q_Placeholder, train_step, batch)
+	# if len(REPLAY_MEMORY)>=BATCH_SIZE:
+	# 	batch = random.sample(REPLAY_MEMORY, MINIBATCH_SIZE)
+	# 	backPropagate(sess, inputImagePlaceholder, actionPlaceholder, rewardPlaceholder, Q_Placeholder, train_step, batch)
 
 	# Keep track of total reward for this game
 	TOTAL_REWARD += reward_t1	
 
-	if EPSILON>0.1 and COUNT%10000==0:	# reduce epsilon to have more exploitation over time
-		EPSILON -= 0.01
+	# if EPSILON>0.1 and COUNT%10000==0:	# reduce epsilon to have more exploitation over time
+	# 	EPSILON -= 0.01
 
 	# check REPLAY_MEMORY size (shouldn't be more than batch_size)
-	if len(REPLAY_MEMORY)>BATCH_SIZE:
-		REPLAY_MEMORY.popleft()	
+	# if len(REPLAY_MEMORY)>BATCH_SIZE:
+	# 	REPLAY_MEMORY.popleft()	
 
 	# save the network
 	# ----- Followed documentation here : https://www.tensorflow.org/programmers_guide/variables --- #
-	if COUNT%10000==0: 
-		save_path = saver.save(sess, "./networks/dqn.ckpt")
-		print("Model saved in file: %s" % save_path)
-	# ------------------------------------------------------------------------------- #
+	# if COUNT%10000==0: 
+	# 	save_path = saver.save(sess, "./networks/dqn.ckpt")
+	# 	print("Model saved in file: %s" % save_path)
+	# # ------------------------------------------------------------------------------- #
 
 	if done:
 		AVG_REWARD = (((GAME_COUNT-1)*AVG_REWARD) + TOTAL_REWARD)/GAME_COUNT
