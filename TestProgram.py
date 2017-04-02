@@ -135,12 +135,12 @@ while True:
 	# decide action based on EPSILON
 	if random.random()>EPSILON:
 		# Exploit
-		action = tf.argmax(Q_val,1).eval()[0]
+		action = np.argmax(Q_val)
 	else:
 		# Explore
 		action = env.action_space.sample()
 
-	print "Action = ", action	
+	# print "Action = ", action	
 	# take action
 	inputImages_t1, reward_t1, done = getMultipleImageFrames(env, action)	
 	Q_val1 = getQ(sess, inputImagePlaceholder, inputImages_t1, Q)	# Q_t+1
