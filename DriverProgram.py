@@ -135,7 +135,6 @@ TOTAL_REWARD = reward_t
 while True:
 
 	COUNT += 1
-	print "Count = ", COUNT
 	
 	# decide action based on EPSILON
 	if random.random()>EPSILON:
@@ -149,9 +148,7 @@ while True:
 	# take action
 	inputImages_t1, reward_t1, done = getMultipleImageFrames(env, action)	
 	Q_val1 = getQ(sess, inputImagePlaceholder, inputImages_t1, Q)	# Q_t+1
-	if COUNT==20:
-		showFrames(inputImages_t1)
-		break
+	
 	# Store in replay memory
 	actionMatrix = np.zeros(ACTIONS)
 	actionMatrix[action] = 1
