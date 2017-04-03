@@ -70,7 +70,7 @@ def changeImage(img):	# resize the image
 def grayScaleImage(rgbImage):
 	# return np.dot(rgbImage[...,:3], [0.299, 0.587, 0.114])
 	img = Image.fromarray(rgbImage)
-	img = img.convert('1')
+	img = img.convert('L')
 	return img
 # ------------------------------------------------------------------------------- #
 
@@ -148,7 +148,8 @@ while True:
 	# take action
 	inputImages_t1, reward_t1, done = getMultipleImageFrames(env, action)	
 	Q_val1 = getQ(sess, inputImagePlaceholder, inputImages_t1, Q)	# Q_t+1
-	
+	showFrames(inputImages_t1)
+	break
 	# Store in replay memory
 	actionMatrix = np.zeros(ACTIONS)
 	actionMatrix[action] = 1
