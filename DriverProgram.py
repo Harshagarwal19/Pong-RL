@@ -70,7 +70,7 @@ def changeImage(img):	# resize the image
 def grayScaleImage(rgbImage):
 	# return np.dot(rgbImage[...,:3], [0.299, 0.587, 0.114])
 	img = Image.fromarray(rgbImage)
-	img = img.convert('1')
+	img = img.convert('L')
 	return img
 # ------------------------------------------------------------------------------- #
 
