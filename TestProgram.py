@@ -145,7 +145,7 @@ while True:
 		# Explore
 		action = env.action_space.sample()
 
-	print Q_val	
+	# print Q_val	
 	# take action
 	inputImages_t1, reward_t1, done = getMultipleImageFrames(env, action)	
 	Q_val1 = getQ(sess, inputImagePlaceholder, inputImages_t1, Q)	# Q_t+1
@@ -163,7 +163,7 @@ while True:
 	# use inputImages_t1 as inputimages_t2
 	inputImages_t = inputImages_t1
 	Q_val = Q_val1
-	print Q_val1
+	# print Q_val1
 	# Backpropagate
 	# if len(REPLAY_MEMORY)>=BATCH_SIZE:
 	# 	batch = random.sample(REPLAY_MEMORY, MINIBATCH_SIZE)

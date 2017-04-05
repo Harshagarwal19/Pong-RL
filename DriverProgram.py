@@ -63,7 +63,9 @@ def getMultipleImageFrames(env, action):
 
 def changeImage(img):	# resize the image
 	img = grayScaleImage(img)
-	img = scipy.misc.imresize(img, (IMG_SIZE,IMG_SIZE))
+	# img = scipy.misc.imresize(img, (IMG_SIZE,IMG_SIZE))
+	img = scipy.misc.imresize(img, (110,84))
+	img = img[20:104,:]
 	return img
 
 # ----- Used this answer : http://stackoverflow.com/questions/12201577/how-can-i-convert-an-rgb-image-into-grayscale-in-python ------------------- #
@@ -148,8 +150,9 @@ while True:
 	# take action
 	inputImages_t1, reward_t1, done = getMultipleImageFrames(env, action)	
 	Q_val1 = getQ(sess, inputImagePlaceholder, inputImages_t1, Q)	# Q_t+1
-	showFrames(inputImages_t1)
-	break
+	# if COUNT==20:
+	# 	showFrames(inputImages_t1)
+	# 	break
 	# Store in replay memory
 	actionMatrix = np.zeros(ACTIONS)
 	actionMatrix[action] = 1
