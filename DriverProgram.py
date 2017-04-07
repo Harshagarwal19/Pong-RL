@@ -22,10 +22,12 @@ REPLAY_MEMORY_SIZE = 100000
 BATCH_SIZE = 10000
 MINIBATCH_SIZE = 32
 
-EPSILON = 1
+EPSILON = 0.7
+FINAL_EPSILON = 0.1
+TOTAL_EP = 1000000
 
-COUNT = 0
-GAME_COUNT = 1
+COUNT = 300000
+GAME_COUNT = 1000
 
 # Statistics
 TOTAL_REWARD = 0
@@ -177,6 +179,7 @@ while True:
 
 	if EPSILON>0.1 and COUNT%10000==0:	# reduce epsilon to have more exploitation over time
 		EPSILON -= 0.01
+		print "Epsilon = ", EPSILON
 
 	# check REPLAY_MEMORY size (shouldn't be more than batch_size)
 	if len(REPLAY_MEMORY)>REPLAY_MEMORY_SIZE:
