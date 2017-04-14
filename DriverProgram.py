@@ -31,7 +31,7 @@ GAME_COUNT = 1000
 
 # Statistics
 TOTAL_REWARD = 0
-AVG_REWARD = 0
+AVG_REWARD = -20.5
 
 GAMMA = 0.99
 
